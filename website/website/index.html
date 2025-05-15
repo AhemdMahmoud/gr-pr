@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thank You</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>Thank you, Eng. Yasmine! </h1>
+        <canvas id="thankCanvas" width="600" height="150"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('thankCanvas');
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#007BFF';
+        ctx.font = 'bold 36px Arial';
+        ctx.fillText('Thanks from Docker!', 100, 80);
+    </script>
+</body>
+
+</html>
