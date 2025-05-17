@@ -17,6 +17,6 @@ jobs:
       run: docker build ./website --file ./website/Dockerfile --tag hamedo1/gr-website:latest
 
     - name: Run Docker Container
-      run: docker run -d -p 8080:80 your-image-name
+      run: docker run -d -p 8080:80 gr-website:latest
 
 
