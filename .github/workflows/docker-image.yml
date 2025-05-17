@@ -21,3 +21,12 @@ jobs:
 
     - name: Push Docker image
       run: docker push hamedo1/gr-website:latest
+
+    - name: Debug secrets
+      run: |
+        echo "Username is set: ${DOCKERHUB_USERNAME:+yes}"
+        echo "Token is set: ${DOCKERHUB_TOKEN:+yes}"
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
