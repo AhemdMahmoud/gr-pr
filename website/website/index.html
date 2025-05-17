@@ -1,33 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Thank You</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit Throw</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #87CEEB;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        #gameCanvas {
+            background: #F0F0F0;
+            border: 2px solid #333;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: #333;
+        }
+    </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1>Thank you, Eng. Yasmine! </h1>
-        <h2>Team Member</h2>
-        <ul>
-            <li>Mostafa Safwat</li>
-            <li>Ahmed Mahmoud</li>
-            
-        </ul>
-        <canvas id="thankCanvas" width="600" height="150"></canvas>
-    </div>
-
+    <div id="score">Score: 0</div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
     <script>
-        const canvas = document.getElementById('thankCanvas');
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
 
-        ctx.fillStyle = '#007BFF';
-        ctx.font = 'bold 36px Arial';
-        ctx.fillText('Thanks from Docker!', 100, 80);
+        let score = 0;
+        const throwerX = 50;
+        const throwerY = canvas.height - 50;
+        const fruitSize = 20;
+        let fruits = [];
+        let targets = [];
+        const targetSize = 40;
+        const targetSpeed = 3;
+
+        // Fruit class (thrown projectile)
+        class Fruit {
+            constructor(targetX, targetY) {
+                this.x = throwerX;
+                this.y = throwerY;
+                // Calculate velocity to aim at click position
+                const dx = targetX - throwerX;
+                const dy = targetY - throwerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const speed = 10;
+                this.vx = (dx / distance) * speed;
+                this.vy = (dy / distance) * speed;
+            }
+
+            draw() {
+                ctx.fillStyle = 'red';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, fruitSize / 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+        }
+
+        // Target class
+        class Target {
+            constructor() {
+                this.x = canvas.width;
+                this.y = Math.random() * (canvas.height - targetSize);
+            }
+
+            draw() {
+                ctx.fillStyle = 'green';
+                ctx.fillRect(this.x, this.y, targetSize, targetSize);
+            }
+
+            update() {
+                this.x -= targetSpeed;
+            }
+        }
+
+        // Throw fruit on click
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+            fruits.push(new Fruit(clickX, clickY));
+        });
+
+        // Game loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw thrower
+            ctx.fillStyle = 'brown';
+            ctx.fillRect(throwerX - 20, throwerY - 20, 40, 40);
+
+            // Update and draw fruits
+            fruits.forEach((fruit, fruitIndex) => {
+                fruit.update();
+                fruit.draw();
+
+                // Check collision with targets
+                targets.forEach((target, targetIndex) => {
+                    if (
+                        fruit.x > target.x &&
+                        fruit.x < target.x + targetSize &&
+                        fruit.y > target.y &&
+                        fruit.y < target.y + targetSize
+                    ) {
+                        score++;
+                        scoreDisplay.textContent = `Score: ${score}`;
+                        fruits.splice(fruitIndex, 1);
+                        targets.splice(targetIndex, 1);
+                    }
+                });
+
+                // Remove fruits that go off screen
+                if (
+                    fruit.x < 0 ||
+                    fruit.x > canvas.width ||
+                    fruit.y < 0 ||
+                    fruit.y > canvas.height
+                ) {
+                    fruits.splice(fruitIndex, 1);
+                }
+            });
+
+            // Update and draw targets
+            targets.forEach((target, index) => {
+                target.update();
+                target.draw();
+
+                // Remove targets that go off screen
+                if (target.x < -targetSize) {
+                    targets.splice(index, 1);
+                }
+            });
+
+            // Spawn new target
+            if (Math.random() < 0.02) {
+                targets.push(new Target());
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start game
+        gameLoop();
     </script>
 </body>
-
 </html>
